@@ -1,7 +1,8 @@
 from django.urls import path
-from .views import CountryDataView
+from .views import CountryDataView, CountryListView
+
 
 urlpatterns = [
-    # This matches URLs like /api/country/usa/
-    path('country/<str:country_code>/', CountryDataView.as_view(), name='country-data'),
+    path('country/<str:country_code>/', CountryDataView.as_view(), name='country-data'),  # This matches URLs like /api/country/usa/
+    path('countries/', CountryListView.as_view(), name='country-list'), # Endpoint for the full country list, e.g., /api/countries/
 ]
