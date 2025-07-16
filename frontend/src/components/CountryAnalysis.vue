@@ -131,16 +131,19 @@ onMounted(async () => {
             </div>
           </div>
           <!-- Results Card 1 -->
-          <div class="relative p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg border border-white/10 transition-all duration-300 ease-in-out hover:scale-105 hover:-translate-y-2 hover:shadow-2xl min-h-[220px] flex items-center justify-center">
+          <div class="relative p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg border border-white/10 transition-all duration-300 ease-in-out hover:scale-105 hover:-translate-y-2 hover:shadow-2xl min-h-[300px] flex items-center justify-center">
             <div v-if="isLoading1" class="text-slate-400">Chirping...</div>
             <div v-else-if="error1" class="text-red-400 text-center"><strong>Oops!</strong><br/>{{ error1 }}</div>
             <div v-else-if="countryData1 && countryData1.country" class="w-full">
               <h2 class="text-2xl font-bold mb-4 border-b border-white/10 pb-2">{{ countryData1.country.name }}</h2>
-              <ul class="space-y-3">
-                <li v-if="countryData1.population" class="flex justify-between items-center"><span class="font-semibold text-sm">Population ({{ countryData1.population.year }})</span><span class="text-lime-300 font-mono text-lg">{{ formatNumber(countryData1.population.value) }}</span></li>
-                <li v-if="countryData1.gdp" class="flex justify-between items-center"><span class="font-semibold text-sm">{{ countryData1.gdp.name }} ({{ countryData1.gdp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.gdp.value) }}</span></li>
-                <li v-if="countryData1.gdp_per_capita" class="flex justify-between items-center"><span class="font-semibold text-sm">{{ countryData1.gdp_per_capita.name }} ({{ countryData1.gdp_per_capita.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.gdp_per_capita.value) }}</span></li>
-                <li v-if="countryData1.ppp" class="flex justify-between items-center"><span class="font-semibold text-sm">{{ countryData1.ppp.name }} ({{ countryData1.ppp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.ppp.value) }}</span></li>
+              <ul class="space-y-3 text-sm">
+                <li v-if="countryData1.population" class="flex justify-between items-center"><span class="font-semibold">Population ({{ countryData1.population.year }})</span><span class="text-lime-300 font-mono text-lg">{{ formatNumber(countryData1.population.value) }}</span></li>
+                <li v-if="countryData1.gdp" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.gdp.name }} ({{ countryData1.gdp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.gdp.value) }}</span></li>
+                <li v-if="countryData1.gdp_per_capita" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.gdp_per_capita.name }} ({{ countryData1.gdp_per_capita.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.gdp_per_capita.value) }}</span></li>
+                <li v-if="countryData1.gni_per_capita" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.gni_per_capita.name }} ({{ countryData1.gni_per_capita.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.gni_per_capita.value) }}</span></li>
+                <li v-if="countryData1.ppp" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.ppp.name }} ({{ countryData1.ppp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.ppp.value) }}</span></li>
+                <li v-if="countryData1.inflation" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.inflation.name }} ({{ countryData1.inflation.year }})</span><span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData1.inflation.value) }}%</span></li>
+                <li v-if="countryData1.tax_rate" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.tax_rate.name }} ({{ countryData1.tax_rate.year }})</span><span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData1.tax_rate.value) }}%</span></li>
               </ul>
             </div>
           </div>
@@ -160,16 +163,19 @@ onMounted(async () => {
             </div>
           </div>
           <!-- Results Card 2 -->
-          <div class="relative p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg border border-white/10 transition-all duration-300 ease-in-out hover:scale-105 hover:-translate-y-2 hover:shadow-2xl min-h-[220px] flex items-center justify-center">
+          <div class="relative p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg border border-white/10 transition-all duration-300 ease-in-out hover:scale-105 hover:-translate-y-2 hover:shadow-2xl min-h-[300px] flex items-center justify-center">
             <div v-if="isLoading2" class="text-slate-400">Chirping...</div>
             <div v-else-if="error2" class="text-red-400 text-center"><strong>Oops!</strong><br/>{{ error2 }}</div>
             <div v-else-if="countryData2 && countryData2.country" class="w-full">
               <h2 class="text-2xl font-bold mb-4 border-b border-white/10 pb-2">{{ countryData2.country.name }}</h2>
-              <ul class="space-y-3">
-                <li v-if="countryData2.population" class="flex justify-between items-center"><span class="font-semibold text-sm">Population ({{ countryData2.population.year }})</span><span class="text-lime-300 font-mono text-lg">{{ formatNumber(countryData2.population.value) }}</span></li>
-                <li v-if="countryData2.gdp" class="flex justify-between items-center"><span class="font-semibold text-sm">{{ countryData2.gdp.name }} ({{ countryData2.gdp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.gdp.value) }}</span></li>
-                <li v-if="countryData2.gdp_per_capita" class="flex justify-between items-center"><span class="font-semibold text-sm">{{ countryData2.gdp_per_capita.name }} ({{ countryData2.gdp_per_capita.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.gdp_per_capita.value) }}</span></li>
-                <li v-if="countryData2.ppp" class="flex justify-between items-center"><span class="font-semibold text-sm">{{ countryData2.ppp.name }} ({{ countryData2.ppp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.ppp.value) }}</span></li>
+              <ul class="space-y-3 text-sm">
+                <li v-if="countryData2.population" class="flex justify-between items-center"><span class="font-semibold">Population ({{ countryData2.population.year }})</span><span class="text-lime-300 font-mono text-lg">{{ formatNumber(countryData2.population.value) }}</span></li>
+                <li v-if="countryData2.gdp" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.gdp.name }} ({{ countryData2.gdp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.gdp.value) }}</span></li>
+                <li v-if="countryData2.gdp_per_capita" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.gdp_per_capita.name }} ({{ countryData2.gdp_per_capita.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.gdp_per_capita.value) }}</span></li>
+                <li v-if="countryData2.gni_per_capita" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.gni_per_capita.name }} ({{ countryData2.gni_per_capita.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.gni_per_capita.value) }}</span></li>
+                <li v-if="countryData2.ppp" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.ppp.name }} ({{ countryData2.ppp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.ppp.value) }}</span></li>
+                <li v-if="countryData2.inflation" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.inflation.name }} ({{ countryData2.inflation.year }})</span><span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData2.inflation.value) }}%</span></li>
+                <li v-if="countryData2.tax_rate" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.tax_rate.name }} ({{ countryData2.tax_rate.year }})</span><span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData2.tax_rate.value) }}%</span></li>
               </ul>
             </div>
           </div>

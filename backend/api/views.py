@@ -7,19 +7,22 @@ from django.core.cache import cache
 
 class CountryDataView(APIView):
     def get(self, request, country_code):
-        WORLD_BANK_API_BASE = "http://api.worldbank.org/v2/country"
+        # list of indicators
         indicators = {
+            "population": "SP.POP.TOTL",
             "gdp": "NY.GDP.MKTP.CD",
             "gdp_per_capita": "NY.GDP.PCAP.CD",
             "ppp": "NY.GDP.MKTP.PP.CD",
-            "population": "SP.POP.TOTL"
+            "gni_per_capita": "NY.GNP.PCAP.CD",
+            "inflation": "FP.CPI.TOTL.ZG",
+            "tax_rate": "IC.TAX.TOTL.CP.ZS"
         }
         country_data = {
             "country": None,
         }
 
         for key, indicator_id in indicators.items():
-            url = f"{WORLD_BANK_API_BASE}/{country_code}/indicator/{indicator_id}?format=json&mrnev=1"
+            url = f"http://api.worldbank.org/v2/country/{country_code}/indicator/{indicator_id}?format=json&mrnev=1"
             try:
                 response = requests.get(url)
                 response.raise_for_status()
@@ -51,44 +54,27 @@ class CountryDataView(APIView):
         return Response(country_data, status=status.HTTP_200_OK)
 
 
-COUNTRY_LIST_CACHE_KEY = "country_list_data"
-
-
+# The list of all countries for the dropdown
 class CountryListView(APIView):
-    """
-    Provides a list of all available countries with their names and codes.
-    """
-
     def get(self, request):
-        cached_countries = cache.get(COUNTRY_LIST_CACHE_KEY)
-        if cached_countries:
-            return Response(cached_countries, status=status.HTTP_200_OK)
-
-        url = "http://api.worldbank.org/v2/country?format=json&per_page=300"
-        countries = []
-
+        url = "http://api.worldbank.org/v2/country?format=json&per_page=350"
         try:
             response = requests.get(url)
             response.raise_for_status()
             data = response.json()
 
-            # The API returns a list; [0] is metadata, [1] is the data
-            if data and len(data) > 1:
-                for country in data[1]:
-                    # Only want countries with an iso2Code, which are real countries
-                    if country.get('iso2Code') and country['iso2Code'] != 'NA':
-                        countries.append({
-                            'id': country['id'],  # This is the 3-letter code, e.g., 'LTU'
-                            'name': country['name'],  # pvz. 'Lithuania'
-                        })
+            # The second element ([1]) contains the list of countries
+            if not (data and len(data) > 1):
+                return Response({"error": "Invalid response from World Bank API"}, status=500)
 
-            # Stores the freshly fetched list in the cache for 24 hours (86400 seconds)
-            cache.set(COUNTRY_LIST_CACHE_KEY, countries, 86400)
+            country_list = data[1]
 
-            return Response(countries, status=status.HTTP_200_OK)
+            # Filter out non-country aggregates by checking for a valid 3-letter code.
+            filtered_countries = [
+                {"id": country["id"], "name": country["name"]}
+                for country in country_list if len(country["id"]) == 3
+            ]
 
+            return Response(filtered_countries)
         except requests.exceptions.RequestException as e:
-            return Response(
-                {"error": f"Failed to fetch country list from World Bank API: {e}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            return Response({"error": f"Failed to fetch country list: {e}"}, status=500)
