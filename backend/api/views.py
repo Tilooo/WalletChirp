@@ -148,3 +148,32 @@ class CountryListView(APIView):
         except requests.exceptions.RequestException as e:
             return Response({"error": f"Failed to fetch country list: {e}"},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class HistoricalDataView(APIView):
+    def get(self, request, country_code, indicator_code):
+        # Defined the last 20 years.
+        date_range = "2004:2024"
+
+        url = f"http://api.worldbank.org/v2/country/{country_code}/indicator/{indicator_code}?format=json&date={date_range}&per_page=50"
+
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            data = response.json()
+
+            if not (data and len(data) > 1 and data[1]):
+                # an empty list if no data is found
+                return Response([], status=status.HTTP_200_OK)
+
+            # The World Bank returns the most recent year first.
+            historical_data = [
+                {"year": item["date"], "value": item["value"]}
+                for item in reversed(data[1]) if item.get("value") is not None
+            ]
+
+            return Response(historical_data, status=status.HTTP_200_OK)
+
+        except requests.exceptions.RequestException as e:
+            return Response({"error": f"Failed to fetch historical data: {e}"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)

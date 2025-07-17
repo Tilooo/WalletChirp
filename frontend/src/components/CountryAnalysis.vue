@@ -1,10 +1,13 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import ComparisonChart from './ComparisonChart.vue';
 
 // --- STATE MANAGEMENT ---
 const allCountries = ref([]); // holds a big list of countries
+const historicalChartData = ref(null);
+const historicalChartTitle = ref('');
+const isHistoricalLoading = ref(false);
 
 // Country 1
 const countryCode1 = ref('usa');
@@ -77,6 +80,45 @@ const fetchData = async (countryNumber) => {
   }
 };
 
+const fetchHistoricalData = async (indicatorName, indicatorCode) => {
+  isHistoricalLoading.value = true;
+  historicalChartTitle.value = indicatorName;
+  historicalChartData.value = null; // Clear old data
+
+  try {
+    // data for both countries at the same time
+    const [response1, response2] = await Promise.all([
+      axios.get(`http://127.0.0.1:8000/api/historical/${countryData1.value.country.id}/${indicatorCode}/`),
+      axios.get(`http://127.0.0.1:8000/api/historical/${countryData2.value.country.id}/${indicatorCode}/`)
+    ]);
+
+    const data1 = response1.data;
+    const data2 = response2.data;
+
+    // Combine all years from both datasets to create the labels
+    const allYears = [...new Set([...data1.map(d => d.year), ...data2.map(d => d.year)])].sort();
+
+    const createDataset = (data, allYears) => {
+        const dataMap = new Map(data.map(d => [d.year, d.value]));
+        return allYears.map(year => dataMap.get(year) || null); // null for missing years to create gaps in the line
+    };
+
+    // The data for chart component
+    historicalChartData.value = {
+        labels: allYears,
+        datasets: [
+            { label: countryData1.value.country.name, data: createDataset(data1, allYears), borderColor: '#84cc16', tension: 0.1 },
+            { label: countryData2.value.country.name, data: createDataset(data2, allYears), borderColor: '#22c55e', tension: 0.1 }
+        ]
+    };
+
+  } catch (error) {
+    console.error("Failed to fetch historical data:", error);
+  } finally {
+    isHistoricalLoading.value = false;
+  }
+};
+
 // --- HELPER FUNCTION ---
 const formatNumber = (num) => {
   if (num === null || num === undefined) return 'N/A';
@@ -138,27 +180,25 @@ onMounted(async () => {
             <div v-else-if="countryData1 && countryData1.country" class="w-full">
               <h2 class="text-2xl font-bold mb-4 border-b border-white/10 pb-2">{{ countryData1.country.name }}</h2>
               <ul class="space-y-3 text-sm">
-                <li v-if="countryData1.population" class="flex justify-between items-center"><span class="font-semibold">Population ({{ countryData1.population.year }})</span><span class="text-lime-300 font-mono text-lg">{{ formatNumber(countryData1.population.value) }}</span></li>
+                <li v-if="countryData1.gdp_per_capita" class="flex justify-between items-center">
+                  <span @click="fetchHistoricalData('GDP per Capita', 'NY.GDP.PCAP.CD')" class="font-semibold cursor-pointer hover:text-lime-300 transition-colors">{{ countryData1.gdp_per_capita.name }} ({{ countryData1.gdp_per_capita.year }})</span>
+                  <span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.gdp_per_capita.value) }}</span>
+                </li>
+                <li v-if="countryData1.inflation" class="flex justify-between items-center">
+                  <span @click="fetchHistoricalData('Inflation (Annual %)', 'FP.CPI.TOTL.ZG')" class="font-semibold cursor-pointer hover:text-lime-300 transition-colors">{{ countryData1.inflation.name }} ({{ countryData1.inflation.year }})</span>
+                  <span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData1.inflation.value) }}%</span>
+                </li>
+                <li v-if="countryData1.debt_to_gdp" class="flex justify-between items-center">
+                  <span @click="fetchHistoricalData('Debt (% of GDP)', 'GC.DOD.TOTL.GD.ZS')" class="font-semibold cursor-pointer hover:text-lime-300 transition-colors">Debt (% of GDP) ({{ countryData1.debt_to_gdp.year }})</span>
+                  <span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData1.debt_to_gdp.value) }}%</span>
+                </li>
+                 <!-- These are not clickable for now, but could be added later! -->
                 <li v-if="countryData1.gdp" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.gdp.name }} ({{ countryData1.gdp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.gdp.value) }}</span></li>
-                <li v-if="countryData1.gdp_per_capita" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.gdp_per_capita.name }} ({{ countryData1.gdp_per_capita.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.gdp_per_capita.value) }}</span></li>
                 <li v-if="countryData1.gni_per_capita" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.gni_per_capita.name }} ({{ countryData1.gni_per_capita.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.gni_per_capita.value) }}</span></li>
                 <li v-if="countryData1.ppp" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.ppp.name }} ({{ countryData1.ppp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.ppp.value) }}</span></li>
-                <li v-if="countryData1.inflation" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.inflation.name }} ({{ countryData1.inflation.year }})</span><span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData1.inflation.value) }}%</span></li>
-                <li v-if="countryData1.tax_rate" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.tax_rate.name }} ({{ countryData1.tax_rate.year }})</span><span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData1.tax_rate.value) }}%</span></li>
-                <li v-if="countryData1.debt_to_gdp" class="flex justify-between items-center">
-        <span class="font-semibold">Debt (% of GDP) ({{ countryData1.debt_to_gdp.year }})</span>
-        <span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData1.debt_to_gdp.value) }}%</span>
-    </li>
               </ul>
-<div v-if="countryData1.economic_summary" class="mt-4 pt-4 border-t border-white/10">
-  <h3 class="font-semibold text-lime-300 mb-1">Economic Chirp</h3>
-  <p class="text-sm text-slate-300 italic">"{{ countryData1.economic_summary }}"</p>
-</div>
-
-<div v-if="countryData1.tax_summary" class="mt-4 pt-4 border-t border-white/10">
-  <h3 class="font-semibold text-lime-300 mb-1">Tax Chirp</h3>
-  <p class="text-sm text-slate-300">{{ countryData1.tax_summary }}</p>
-</div>
+              <div v-if="countryData1.economic_summary" class="mt-4 pt-4 border-t border-white/10"><h3 class="font-semibold text-lime-300 mb-1">Economic Chirp</h3><p class="text-sm text-slate-300 italic">"{{ countryData1.economic_summary }}"</p></div>
+              <div v-if="countryData1.tax_summary" class="mt-4 pt-4 border-t border-white/10"><h3 class="font-semibold text-lime-300 mb-1">Tax Chirp</h3><p class="text-sm text-slate-300">{{ countryData1.tax_summary }}</p></div>
             </div>
           </div>
         </div>
@@ -183,75 +223,59 @@ onMounted(async () => {
             <div v-else-if="countryData2 && countryData2.country" class="w-full">
               <h2 class="text-2xl font-bold mb-4 border-b border-white/10 pb-2">{{ countryData2.country.name }}</h2>
               <ul class="space-y-3 text-sm">
-                <li v-if="countryData2.population" class="flex justify-between items-center"><span class="font-semibold">Population ({{ countryData2.population.year }})</span><span class="text-lime-300 font-mono text-lg">{{ formatNumber(countryData2.population.value) }}</span></li>
+                <li v-if="countryData2.gdp_per_capita" class="flex justify-between items-center">
+                  <span @click="fetchHistoricalData('GDP per Capita', 'NY.GDP.PCAP.CD')" class="font-semibold cursor-pointer hover:text-lime-300 transition-colors">{{ countryData2.gdp_per_capita.name }} ({{ countryData2.gdp_per_capita.year }})</span>
+                  <span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.gdp_per_capita.value) }}</span>
+                </li>
+                <li v-if="countryData2.inflation" class="flex justify-between items-center">
+                  <span @click="fetchHistoricalData('Inflation (Annual %)', 'FP.CPI.TOTL.ZG')" class="font-semibold cursor-pointer hover:text-lime-300 transition-colors">{{ countryData2.inflation.name }} ({{ countryData2.inflation.year }})</span>
+                  <span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData2.inflation.value) }}%</span>
+                </li>
+                <li v-if="countryData2.debt_to_gdp" class="flex justify-between items-center">
+                  <span @click="fetchHistoricalData('Debt (% of GDP)', 'GC.DOD.TOTL.GD.ZS')" class="font-semibold cursor-pointer hover:text-lime-300 transition-colors">Debt (% of GDP) ({{ countryData2.debt_to_gdp.year }})</span>
+                  <span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData2.debt_to_gdp.value) }}%</span>
+                </li>
+                <!-- These are not clickable for now, but could be  -->
                 <li v-if="countryData2.gdp" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.gdp.name }} ({{ countryData2.gdp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.gdp.value) }}</span></li>
-                <li v-if="countryData2.gdp_per_capita" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.gdp_per_capita.name }} ({{ countryData2.gdp_per_capita.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.gdp_per_capita.value) }}</span></li>
                 <li v-if="countryData2.gni_per_capita" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.gni_per_capita.name }} ({{ countryData2.gni_per_capita.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.gni_per_capita.value) }}</span></li>
                 <li v-if="countryData2.ppp" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.ppp.name }} ({{ countryData2.ppp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.ppp.value) }}</span></li>
-                <li v-if="countryData2.inflation" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.inflation.name }} ({{ countryData2.inflation.year }})</span><span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData2.inflation.value) }}%</span></li>
-                <li v-if="countryData2.tax_rate" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.tax_rate.name }} ({{ countryData2.tax_rate.year }})</span><span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData2.tax_rate.value) }}%</span></li>
-                <li v-if="countryData2.debt_to_gdp" class="flex justify-between items-center">
-        <span class="font-semibold">Debt (% of GDP) ({{ countryData2.debt_to_gdp.year }})</span>
-        <span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData2.debt_to_gdp.value) }}%</span>
-    </li>
               </ul>
-<div v-if="countryData2.economic_summary" class="mt-4 pt-4 border-t border-white/10">
-  <h3 class="font-semibold text-lime-300 mb-1">Economic Chirp</h3>
-  <p class="text-sm text-slate-300 italic">"{{ countryData2.economic_summary }}"</p>
-</div>
-
-<div v-if="countryData2.tax_summary" class="mt-4 pt-4 border-t border-white/10">
-  <h3 class="font-semibold text-lime-300 mb-1">Tax Chirp</h3>
-  <p class="text-sm text-slate-300">{{ countryData2.tax_summary }}</p>
-</div>
+              <div v-if="countryData2.economic_summary" class="mt-4 pt-4 border-t border-white/10"><h3 class="font-semibold text-lime-300 mb-1">Economic Chirp</h3><p class="text-sm text-slate-300 italic">"{{ countryData2.economic_summary }}"</p></div>
+              <div v-if="countryData2.tax_summary" class="mt-4 pt-4 border-t border-white/10"><h3 class="font-semibold text-lime-300 mb-1">Tax Chirp</h3><p class="text-sm text-slate-300">{{ countryData2.tax_summary }}</p></div>
             </div>
           </div>
         </div>
       </main>
-      <!-- * VISUAL COMPARISON SECTION * -->
-<section v-if="countryData1 && countryData2" class="w-full max-w-7xl mt-8">
-    <h2 class="text-3xl font-bold text-center mb-6 text-white">Visual Comparison</h2>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-
-        <!-- Chart Card: GDP per Capita -->
-        <div v-if="countryData1.gdp_per_capita && countryData2.gdp_per_capita" class="relative p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg border border-white/10">
+      <!-- * Visual comparison section (bar charts) * -->
+      <section v-if="countryData1 && countryData2" class="w-full max-w-7xl mt-8">
+        <h2 class="text-3xl font-bold text-center mb-6 text-white">Visual Comparison</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div v-if="countryData1.gdp_per_capita && countryData2.gdp_per_capita" class="relative p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg border border-white/10">
             <h3 class="font-semibold text-lg text-center mb-4">GDP per Capita (USD)</h3>
-            <ComparisonChart
-                chartTitle="GDP per Capita"
-                :label1="countryData1.country.name"
-                :data1="countryData1.gdp_per_capita.value"
-                :label2="countryData2.country.name"
-                :data2="countryData2.gdp_per_capita.value"
-            />
-        </div>
-
-        <!-- Chart Card: Inflation -->
-        <div v-if="countryData1.inflation && countryData2.inflation" class="relative p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg border border-white/10">
+            <ComparisonChart chartTitle="GDP per Capita" :label1="countryData1.country.name" :data1="countryData1.gdp_per_capita.value" :label2="countryData2.country.name" :data2="countryData2.gdp_per_capita.value" />
+          </div>
+          <div v-if="countryData1.inflation && countryData2.inflation" class="relative p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg border border-white/10">
             <h3 class="font-semibold text-lg text-center mb-4">Inflation (Annual %)</h3>
-            <ComparisonChart
-                chartTitle="Inflation"
-                :label1="countryData1.country.name"
-                :data1="countryData1.inflation.value"
-                :label2="countryData2.country.name"
-                :data2="countryData2.inflation.value"
-            />
-        </div>
-
-        <!-- Chart Card: Debt to GDP -->
-        <div v-if="countryData1.debt_to_gdp && countryData2.debt_to_gdp" class="relative p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg border border-white/10">
+            <ComparisonChart chartTitle="Inflation" :label1="countryData1.country.name" :data1="countryData1.inflation.value" :label2="countryData2.country.name" :data2="countryData2.inflation.value" />
+          </div>
+          <div v-if="countryData1.debt_to_gdp && countryData2.debt_to_gdp" class="relative p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg border border-white/10">
             <h3 class="font-semibold text-lg text-center mb-4">Debt (% of GDP)</h3>
-            <ComparisonChart
-                chartTitle="Debt"
-                :label1="countryData1.country.name"
-                :data1="countryData1.debt_to_gdp.value"
-                :label2="countryData2.country.name"
-                :data2="countryData2.debt_to_gdp.value"
-            />
+            <ComparisonChart chartTitle="Debt" :label1="countryData1.country.name" :data1="countryData1.debt_to_gdp.value" :label2="countryData2.country.name" :data2="countryData2.debt_to_gdp.value" />
+          </div>
         </div>
+      </section>
 
-    </div>
-</section>
+      <!-- * Historical trend section (line chart) * -->
+      <section v-if="historicalChartData || isHistoricalLoading" class="w-full max-w-7xl mt-8">
+        <div class="relative p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg border border-white/10">
+            <h2 class="text-3xl font-bold text-center mb-6 text-white">{{ historicalChartTitle }} Trend (20-Year History)</h2>
+            <div v-if="isHistoricalLoading" class="text-center text-slate-400">Chirping for historical trends...</div>
+            <div v-else>
+                <ComparisonChart chartType="line" :chartData="historicalChartData" />
+            </div>
+        </div>
+      </section>
 
       <datalist id="country-list">
         <option v-for="country in allCountries" :key="country.id" :value="country.name"></option>
