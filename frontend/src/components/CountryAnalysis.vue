@@ -144,6 +144,10 @@ onMounted(async () => {
                 <li v-if="countryData1.ppp" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.ppp.name }} ({{ countryData1.ppp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.ppp.value) }}</span></li>
                 <li v-if="countryData1.inflation" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.inflation.name }} ({{ countryData1.inflation.year }})</span><span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData1.inflation.value) }}%</span></li>
                 <li v-if="countryData1.tax_rate" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.tax_rate.name }} ({{ countryData1.tax_rate.year }})</span><span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData1.tax_rate.value) }}%</span></li>
+                <li v-if="countryData1.debt_to_gdp" class="flex justify-between items-center">
+        <span class="font-semibold">Debt (% of GDP) ({{ countryData1.debt_to_gdp.year }})</span>
+        <span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData1.debt_to_gdp.value) }}%</span>
+    </li>
               </ul>
 <div v-if="countryData1.tax_summary" class="mt-4 pt-4 border-t border-white/10">
   <h3 class="font-semibold text-lime-300 mb-1">Tax Chirp</h3>
@@ -180,6 +184,10 @@ onMounted(async () => {
                 <li v-if="countryData2.ppp" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.ppp.name }} ({{ countryData2.ppp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.ppp.value) }}</span></li>
                 <li v-if="countryData2.inflation" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.inflation.name }} ({{ countryData2.inflation.year }})</span><span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData2.inflation.value) }}%</span></li>
                 <li v-if="countryData2.tax_rate" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.tax_rate.name }} ({{ countryData2.tax_rate.year }})</span><span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData2.tax_rate.value) }}%</span></li>
+                <li v-if="countryData2.debt_to_gdp" class="flex justify-between items-center">
+        <span class="font-semibold">Debt (% of GDP) ({{ countryData2.debt_to_gdp.year }})</span>
+        <span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData2.debt_to_gdp.value) }}%</span>
+    </li>
               </ul>
 <div v-if="countryData2.tax_summary" class="mt-4 pt-4 border-t border-white/10">
   <h3 class="font-semibold text-lime-300 mb-1">Tax Chirp</h3>

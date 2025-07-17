@@ -26,7 +26,8 @@ class CountryDataView(APIView):
             "ppp": "NY.GDP.MKTP.PP.CD",
             "gni_per_capita": "NY.GNP.PCAP.CD",
             "inflation": "FP.CPI.TOTL.ZG",
-            "tax_rate": "IC.TAX.TOTL.CP.ZS"
+            "tax_rate": "IC.TAX.TOTL.CP.ZS",
+            "debt_to_gdp": "GC.DOD.TOTL.GD.ZS"
         }
         country_data = {"country": None}
 
