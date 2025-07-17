@@ -61,25 +61,73 @@ class CountryDataView(APIView):
             return Response({"error": f"No data found for country code: {country_code}"},
                             status=status.HTTP_404_NOT_FOUND)
 
-
-        # AI tax summary section
+        # * AI summaries section *
+        economic_summary = "Economic summary not available."
         tax_summary = "Tax summary not available."
         country_name = country_data.get("country", {}).get("name")
 
         if model and country_name:
+            # Generate the Economic Chirp
             try:
-                prompt = f"Provide a brief summary of the main personal and corporate income tax rates for {country_name}. Focus on the key percentages. Be concise and start directly with the information. Example: 'Personal income tax is progressive from X% to Y%. Corporate tax is Z%.'"
-                response = model.generate_content(prompt)
-                tax_summary = response.text.strip()
+                data_points = []
+                gdp_pc_data = country_data.get('gdp_per_capita')
+                if gdp_pc_data and gdp_pc_data.get('value') is not None:
+                    try:
+                        gdp_pc_value = int(gdp_pc_data['value'])
+                        data_points.append(f"GDP per Capita of ${gdp_pc_value:,}")
+                    except (ValueError, TypeError):
+                        pass
+
+                inflation_data = country_data.get('inflation')
+                if inflation_data and inflation_data.get('value') is not None:
+                    try:
+                        inflation_value = float(inflation_data['value'])
+                        data_points.append(f"an inflation rate of {inflation_value:.2f}%")
+                    except (ValueError, TypeError):
+                        pass
+
+                debt_data = country_data.get('debt_to_gdp')
+                if debt_data and debt_data.get('value') is not None:
+                    try:
+                        debt_value = float(debt_data['value'])
+                        data_points.append(f"government debt at {debt_value:.2f}% of GDP")
+                    except (ValueError, TypeError):
+                        pass
+
+                if data_points:
+                    data_summary_string = ", ".join(data_points)
+                    prompt_economic = (
+                        f"You are 'WalletChirp', an economic analysis AI. For {country_name}, with {data_summary_string}, "
+                        f"write a concise, one-paragraph 'Economic Chirp'. Analyze these figures for a non-expert, "
+                        f"highlighting one strength and one challenge. Keep it brief and insightful."
+                    )
+                    response_economic = model.generate_content(prompt_economic)
+                    economic_summary = response_economic.text.strip()
+                else:
+                    economic_summary = "Not enough data to generate a summary."
             except Exception as e:
-                print(f"AI generation failed for {country_name}: {e}")
+                print(f"AI economic summary generation failed for {country_name}: {e}")
+                economic_summary = "Could not generate economic summary."
+
+            # Generate the Tax Chirp
+            try:
+                prompt_tax = (
+                    f"For {country_name}, provide a brief summary of the main personal and corporate income tax rates. "
+                    f"Focus on the key percentages. Be concise and start directly with the information. "
+                    f"Example: 'Personal income tax is progressive from X% to Y%. Corporate tax is Z%.'"
+                )
+                response_tax = model.generate_content(prompt_tax)
+                tax_summary = response_tax.text.strip()
+            except Exception as e:
+                print(f"AI tax summary generation failed for {country_name}: {e}")
                 tax_summary = "Could not generate tax summary."
 
+        # BOTH summaries to response data
+        country_data["economic_summary"] = economic_summary
         country_data["tax_summary"] = tax_summary
 
-        # Final, successful response
+        # successful response
         return Response(country_data, status=status.HTTP_200_OK)
-
 
 class CountryListView(APIView):
     def get(self, request):

@@ -150,6 +150,11 @@ onMounted(async () => {
         <span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData1.debt_to_gdp.value) }}%</span>
     </li>
               </ul>
+<div v-if="countryData1.economic_summary" class="mt-4 pt-4 border-t border-white/10">
+  <h3 class="font-semibold text-lime-300 mb-1">Economic Chirp</h3>
+  <p class="text-sm text-slate-300 italic">"{{ countryData1.economic_summary }}"</p>
+</div>
+
 <div v-if="countryData1.tax_summary" class="mt-4 pt-4 border-t border-white/10">
   <h3 class="font-semibold text-lime-300 mb-1">Tax Chirp</h3>
   <p class="text-sm text-slate-300">{{ countryData1.tax_summary }}</p>
@@ -190,6 +195,11 @@ onMounted(async () => {
         <span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData2.debt_to_gdp.value) }}%</span>
     </li>
               </ul>
+<div v-if="countryData2.economic_summary" class="mt-4 pt-4 border-t border-white/10">
+  <h3 class="font-semibold text-lime-300 mb-1">Economic Chirp</h3>
+  <p class="text-sm text-slate-300 italic">"{{ countryData2.economic_summary }}"</p>
+</div>
+
 <div v-if="countryData2.tax_summary" class="mt-4 pt-4 border-t border-white/10">
   <h3 class="font-semibold text-lime-300 mb-1">Tax Chirp</h3>
   <p class="text-sm text-slate-300">{{ countryData2.tax_summary }}</p>
