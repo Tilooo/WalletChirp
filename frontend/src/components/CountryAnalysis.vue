@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import ComparisonChart from './ComparisonChart.vue';
 
 // --- STATE MANAGEMENT ---
 const allCountries = ref([]); // holds a big list of countries
@@ -197,6 +198,50 @@ onMounted(async () => {
           </div>
         </div>
       </main>
+      <!-- * VISUAL COMPARISON SECTION * -->
+<section v-if="countryData1 && countryData2" class="w-full max-w-7xl mt-8">
+    <h2 class="text-3xl font-bold text-center mb-6 text-white">Visual Comparison</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+        <!-- Chart Card: GDP per Capita -->
+        <div v-if="countryData1.gdp_per_capita && countryData2.gdp_per_capita" class="relative p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg border border-white/10">
+            <h3 class="font-semibold text-lg text-center mb-4">GDP per Capita (USD)</h3>
+            <ComparisonChart
+                chartTitle="GDP per Capita"
+                :label1="countryData1.country.name"
+                :data1="countryData1.gdp_per_capita.value"
+                :label2="countryData2.country.name"
+                :data2="countryData2.gdp_per_capita.value"
+            />
+        </div>
+
+        <!-- Chart Card: Inflation -->
+        <div v-if="countryData1.inflation && countryData2.inflation" class="relative p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg border border-white/10">
+            <h3 class="font-semibold text-lg text-center mb-4">Inflation (Annual %)</h3>
+            <ComparisonChart
+                chartTitle="Inflation"
+                :label1="countryData1.country.name"
+                :data1="countryData1.inflation.value"
+                :label2="countryData2.country.name"
+                :data2="countryData2.inflation.value"
+            />
+        </div>
+
+        <!-- Chart Card: Debt to GDP -->
+        <div v-if="countryData1.debt_to_gdp && countryData2.debt_to_gdp" class="relative p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg border border-white/10">
+            <h3 class="font-semibold text-lg text-center mb-4">Debt (% of GDP)</h3>
+            <ComparisonChart
+                chartTitle="Debt"
+                :label1="countryData1.country.name"
+                :data1="countryData1.debt_to_gdp.value"
+                :label2="countryData2.country.name"
+                :data2="countryData2.debt_to_gdp.value"
+            />
+        </div>
+
+    </div>
+</section>
 
       <datalist id="country-list">
         <option v-for="country in allCountries" :key="country.id" :value="country.name"></option>
