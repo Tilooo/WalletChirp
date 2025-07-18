@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import ComparisonChart from './ComparisonChart.vue';
+import ResultsCardSkeleton from './ResultsCardSkeleton.vue';
 
 // --- STATE MANAGEMENT ---
 const allCountries = ref([]); // holds a big list of countries
@@ -151,7 +152,6 @@ onMounted(async () => {
     <div class="absolute inset-0 bg-slate-900/70 z-0"></div>
 
     <div class="relative z-10 w-full flex flex-col items-center">
-
       <header class="text-center mb-10">
         <h1 class="text-4xl sm:text-5xl font-extrabold">
           <span class="text-white">Wallet</span><span class="bg-gradient-to-r from-lime-400 to-green-500 bg-clip-text text-transparent">Chirp</span>
@@ -160,6 +160,7 @@ onMounted(async () => {
       </header>
 
       <main class="w-full max-w-7xl grid grid-cols-1 md:grid-cols-2 gap-8">
+
         <!-- ================== COLUMN 1 ================== -->
         <div class="flex flex-col gap-8">
           <!-- Input Card 1 -->
@@ -173,32 +174,33 @@ onMounted(async () => {
               </button>
             </div>
           </div>
-          <!-- Results Card 1 -->
-          <div class="relative p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg border border-white/10 transition-all duration-300 ease-in-out hover:scale-105 hover:-translate-y-2 hover:shadow-2xl min-h-[300px] flex items-center justify-center">
-            <div v-if="isLoading1" class="text-slate-400">Chirping...</div>
-            <div v-else-if="error1" class="text-red-400 text-center"><strong>Oops!</strong><br/>{{ error1 }}</div>
-            <div v-else-if="countryData1 && countryData1.country" class="w-full">
-              <h2 class="text-2xl font-bold mb-4 border-b border-white/10 pb-2">{{ countryData1.country.name }}</h2>
-              <ul class="space-y-3 text-sm">
-                <li v-if="countryData1.gdp_per_capita" class="flex justify-between items-center">
-                  <span @click="fetchHistoricalData('GDP per Capita', 'NY.GDP.PCAP.CD')" class="font-semibold cursor-pointer hover:text-lime-300 transition-colors">{{ countryData1.gdp_per_capita.name }} ({{ countryData1.gdp_per_capita.year }})</span>
-                  <span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.gdp_per_capita.value) }}</span>
-                </li>
-                <li v-if="countryData1.inflation" class="flex justify-between items-center">
-                  <span @click="fetchHistoricalData('Inflation (Annual %)', 'FP.CPI.TOTL.ZG')" class="font-semibold cursor-pointer hover:text-lime-300 transition-colors">{{ countryData1.inflation.name }} ({{ countryData1.inflation.year }})</span>
-                  <span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData1.inflation.value) }}%</span>
-                </li>
-                <li v-if="countryData1.debt_to_gdp" class="flex justify-between items-center">
-                  <span @click="fetchHistoricalData('Debt (% of GDP)', 'GC.DOD.TOTL.GD.ZS')" class="font-semibold cursor-pointer hover:text-lime-300 transition-colors">Debt (% of GDP) ({{ countryData1.debt_to_gdp.year }})</span>
-                  <span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData1.debt_to_gdp.value) }}%</span>
-                </li>
-                 <!-- These are not clickable for now, but could be added later! -->
-                <li v-if="countryData1.gdp" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.gdp.name }} ({{ countryData1.gdp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.gdp.value) }}</span></li>
-                <li v-if="countryData1.gni_per_capita" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.gni_per_capita.name }} ({{ countryData1.gni_per_capita.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.gni_per_capita.value) }}</span></li>
-                <li v-if="countryData1.ppp" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.ppp.name }} ({{ countryData1.ppp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.ppp.value) }}</span></li>
-              </ul>
-              <div v-if="countryData1.economic_summary" class="mt-4 pt-4 border-t border-white/10"><h3 class="font-semibold text-lime-300 mb-1">Economic Chirp</h3><p class="text-sm text-slate-300 italic">"{{ countryData1.economic_summary }}"</p></div>
-              <div v-if="countryData1.tax_summary" class="mt-4 pt-4 border-t border-white/10"><h3 class="font-semibold text-lime-300 mb-1">Tax Chirp</h3><p class="text-sm text-slate-300">{{ countryData1.tax_summary }}</p></div>
+
+          <!-- Results Card 1 Section -->
+            <ResultsCardSkeleton v-if="isLoading1" />
+            <div v-else class="relative p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg border border-white/10 transition-all duration-300 ease-in-out hover:scale-105 hover:-translate-y-2 hover:shadow-2xl min-h-[300px] flex items-center justify-center">
+              <div v-if="error1" class="text-red-400 text-center"><strong>Oops!</strong><br/>{{ error1 }}</div>
+              <div v-else-if="countryData1 && countryData1.country" class="w-full">
+                <h2 class="text-2xl font-bold mb-4 border-b border-white/10 pb-2">{{ countryData1.country.name }}</h2>
+                <ul class="space-y-3 text-sm">
+                  <li v-if="countryData1.gdp_per_capita" class="flex justify-between items-center">
+                    <span @click="fetchHistoricalData('GDP per Capita', 'NY.GDP.PCAP.CD')" class="font-semibold cursor-pointer hover:text-lime-300 transition-colors">{{ countryData1.gdp_per_capita.name }} ({{ countryData1.gdp_per_capita.year }})</span>
+                    <span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.gdp_per_capita.value) }}</span>
+                  </li>
+                  <li v-if="countryData1.inflation" class="flex justify-between items-center">
+                    <span @click="fetchHistoricalData('Inflation (Annual %)', 'FP.CPI.TOTL.ZG')" class="font-semibold cursor-pointer hover:text-lime-300 transition-colors">{{ countryData1.inflation.name }} ({{ countryData1.inflation.year }})</span>
+                    <span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData1.inflation.value) }}%</span>
+                  </li>
+                  <li v-if="countryData1.debt_to_gdp" class="flex justify-between items-center">
+                    <span @click="fetchHistoricalData('Debt (% of GDP)', 'GC.DOD.TOTL.GD.ZS')" class="font-semibold cursor-pointer hover:text-lime-300 transition-colors">Debt (% of GDP) ({{ countryData1.debt_to_gdp.year }})</span>
+                    <span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData1.debt_to_gdp.value) }}%</span>
+                  </li>
+                  <li v-if="countryData1.gdp" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.gdp.name }} ({{ countryData1.gdp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.gdp.value) }}</span></li>
+                  <li v-if="countryData1.gni_per_capita" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.gni_per_capita.name }} ({{ countryData1.gni_per_capita.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.gni_per_capita.value) }}</span></li>
+                  <li v-if="countryData1.ppp" class="flex justify-between items-center"><span class="font-semibold">{{ countryData1.ppp.name }} ({{ countryData1.ppp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData1.ppp.value) }}</span></li>
+                </ul>
+                <div v-if="countryData1.economic_summary" class="mt-4 pt-4 border-t border-white/10"><h3 class="font-semibold text-lime-300 mb-1">Economic Chirp</h3><p class="text-sm text-slate-300 italic">"{{ countryData1.economic_summary }}"</p></div>
+                <div v-if="countryData1.tax_summary" class="mt-4 pt-4 border-t border-white/10"><h3 class="font-semibold text-lime-300 mb-1">Tax Chirp</h3><p class="text-sm text-slate-300">{{ countryData1.tax_summary }}</p></div>
+              </div>
             </div>
           </div>
         </div>
@@ -216,38 +218,39 @@ onMounted(async () => {
               </button>
             </div>
           </div>
-          <!-- Results Card 2 -->
-          <div class="relative p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg border border-white/10 transition-all duration-300 ease-in-out hover:scale-105 hover:-translate-y-2 hover:shadow-2xl min-h-[300px] flex items-center justify-center">
-            <div v-if="isLoading2" class="text-slate-400">Chirping...</div>
-            <div v-else-if="error2" class="text-red-400 text-center"><strong>Oops!</strong><br/>{{ error2 }}</div>
-            <div v-else-if="countryData2 && countryData2.country" class="w-full">
-              <h2 class="text-2xl font-bold mb-4 border-b border-white/10 pb-2">{{ countryData2.country.name }}</h2>
-              <ul class="space-y-3 text-sm">
-                <li v-if="countryData2.gdp_per_capita" class="flex justify-between items-center">
-                  <span @click="fetchHistoricalData('GDP per Capita', 'NY.GDP.PCAP.CD')" class="font-semibold cursor-pointer hover:text-lime-300 transition-colors">{{ countryData2.gdp_per_capita.name }} ({{ countryData2.gdp_per_capita.year }})</span>
-                  <span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.gdp_per_capita.value) }}</span>
-                </li>
-                <li v-if="countryData2.inflation" class="flex justify-between items-center">
-                  <span @click="fetchHistoricalData('Inflation (Annual %)', 'FP.CPI.TOTL.ZG')" class="font-semibold cursor-pointer hover:text-lime-300 transition-colors">{{ countryData2.inflation.name }} ({{ countryData2.inflation.year }})</span>
-                  <span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData2.inflation.value) }}%</span>
-                </li>
-                <li v-if="countryData2.debt_to_gdp" class="flex justify-between items-center">
-                  <span @click="fetchHistoricalData('Debt (% of GDP)', 'GC.DOD.TOTL.GD.ZS')" class="font-semibold cursor-pointer hover:text-lime-300 transition-colors">Debt (% of GDP) ({{ countryData2.debt_to_gdp.year }})</span>
-                  <span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData2.debt_to_gdp.value) }}%</span>
-                </li>
-                <!-- These are not clickable for now, but could be  -->
-                <li v-if="countryData2.gdp" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.gdp.name }} ({{ countryData2.gdp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.gdp.value) }}</span></li>
-                <li v-if="countryData2.gni_per_capita" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.gni_per_capita.name }} ({{ countryData2.gni_per_capita.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.gni_per_capita.value) }}</span></li>
-                <li v-if="countryData2.ppp" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.ppp.name }} ({{ countryData2.ppp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.ppp.value) }}</span></li>
-              </ul>
-              <div v-if="countryData2.economic_summary" class="mt-4 pt-4 border-t border-white/10"><h3 class="font-semibold text-lime-300 mb-1">Economic Chirp</h3><p class="text-sm text-slate-300 italic">"{{ countryData2.economic_summary }}"</p></div>
-              <div v-if="countryData2.tax_summary" class="mt-4 pt-4 border-t border-white/10"><h3 class="font-semibold text-lime-300 mb-1">Tax Chirp</h3><p class="text-sm text-slate-300">{{ countryData2.tax_summary }}</p></div>
+
+          <!-- Results Card 2 Section -->
+            <ResultsCardSkeleton v-if="isLoading2" />
+            <div v-else class="relative p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg border border-white/10 transition-all duration-300 ease-in-out hover:scale-105 hover:-translate-y-2 hover:shadow-2xl min-h-[300px] flex items-center justify-center">
+              <div v-if="error2" class="text-red-400 text-center"><strong>Oops!</strong><br/>{{ error2 }}</div>
+              <div v-else-if="countryData2 && countryData2.country" class="w-full">
+                <h2 class="text-2xl font-bold mb-4 border-b border-white/10 pb-2">{{ countryData2.country.name }}</h2>
+                <ul class="space-y-3 text-sm">
+                  <li v-if="countryData2.gdp_per_capita" class="flex justify-between items-center">
+                    <span @click="fetchHistoricalData('GDP per Capita', 'NY.GDP.PCAP.CD')" class="font-semibold cursor-pointer hover:text-lime-300 transition-colors">{{ countryData2.gdp_per_capita.name }} ({{ countryData2.gdp_per_capita.year }})</span>
+                    <span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.gdp_per_capita.value) }}</span>
+                  </li>
+                  <li v-if="countryData2.inflation" class="flex justify-between items-center">
+                    <span @click="fetchHistoricalData('Inflation (Annual %)', 'FP.CPI.TOTL.ZG')" class="font-semibold cursor-pointer hover:text-lime-300 transition-colors">{{ countryData2.inflation.name }} ({{ countryData2.inflation.year }})</span>
+                    <span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData2.inflation.value) }}%</span>
+                  </li>
+                  <li v-if="countryData2.debt_to_gdp" class="flex justify-between items-center">
+                    <span @click="fetchHistoricalData('Debt (% of GDP)', 'GC.DOD.TOTL.GD.ZS')" class="font-semibold cursor-pointer hover:text-lime-300 transition-colors">Debt (% of GDP) ({{ countryData2.debt_to_gdp.year }})</span>
+                    <span class="text-red-400 font-mono text-lg">{{ formatNumber(countryData2.debt_to_gdp.value) }}%</span>
+                  </li>
+                  <li v-if="countryData2.gdp" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.gdp.name }} ({{ countryData2.gdp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.gdp.value) }}</span></li>
+                  <li v-if="countryData2.gni_per_capita" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.gni_per_capita.name }} ({{ countryData2.gni_per_capita.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.gni_per_capita.value) }}</span></li>
+                  <li v-if="countryData2.ppp" class="flex justify-between items-center"><span class="font-semibold">{{ countryData2.ppp.name }} ({{ countryData2.ppp.year }})</span><span class="text-lime-300 font-mono text-lg">${{ formatNumber(countryData2.ppp.value) }}</span></li>
+                </ul>
+                <div v-if="countryData2.economic_summary" class="mt-4 pt-4 border-t border-white/10"><h3 class="font-semibold text-lime-300 mb-1">Economic Chirp</h3><p class="text-sm text-slate-300 italic">"{{ countryData2.economic_summary }}"</p></div>
+                <div v-if="countryData2.tax_summary" class="mt-4 pt-4 border-t border-white/10"><h3 class="font-semibold text-lime-300 mb-1">Tax Chirp</h3><p class="text-sm text-slate-300">{{ countryData2.tax_summary }}</p></div>
+              </div>
             </div>
           </div>
         </div>
       </main>
 
-      <!-- * Visual comparison section (bar charts) * -->
+      <!-- * Visual comparison section (BAR CHARTS) * -->
       <section v-if="countryData1 && countryData2" class="w-full max-w-7xl mt-8">
         <h2 class="text-3xl font-bold text-center mb-6 text-white">Visual Comparison</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -266,14 +269,14 @@ onMounted(async () => {
         </div>
       </section>
 
-      <!-- * Historical trend section (line chart) * -->
+      <!-- * Historical trend section (LINE CHART) * -->
       <section v-if="historicalChartData || isHistoricalLoading" class="w-full max-w-7xl mt-8">
         <div class="relative p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg border border-white/10">
-            <h2 class="text-3xl font-bold text-center mb-6 text-white">{{ historicalChartTitle }} Trend (20-Year History)</h2>
-            <div v-if="isHistoricalLoading" class="text-center text-slate-400">Chirping for historical trends...</div>
-            <div v-else>
-                <ComparisonChart chartType="line" :chartData="historicalChartData" />
-            </div>
+          <h2 class="text-3xl font-bold text-center mb-6 text-white">{{ historicalChartTitle }} Trend (20-Year History)</h2>
+          <div v-if="isHistoricalLoading" class="text-center text-slate-400">Chirping for historical trends...</div>
+          <div v-else>
+            <ComparisonChart chartType="line" :chartData="historicalChartData" />
+          </div>
         </div>
       </section>
 

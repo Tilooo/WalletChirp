@@ -1,15 +1,25 @@
 <script setup>
-import { Bar } from 'vue-chartjs';
-import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
+import { Bar, Line } from 'vue-chartjs';
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, LineElement, PointElement } from 'chart.js';
 import { computed } from 'vue';
 
 // The components to use with Chart.js
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, LineElement, PointElement);
 
 const props = defineProps({
+  chartType: {
+    type: String,
+    default: 'bar',
+  },
+  // Prop specifically for line charts
+  chartData: {
+    type: Object,
+    default: () => ({}),
+  },
+  // Props specifically for bar charts
   chartTitle: {
     type: String,
-    required: true,
+    required: false,
   },
   label1: {
     type: String,
@@ -30,26 +40,31 @@ const props = defineProps({
 });
 
 // here formating the data for Chart.js.
-const chartData = computed(() => ({
-  labels: [props.chartTitle], // The label for the data group (pvz., "GDP per Capita")
-  datasets: [
-    {
-      label: props.label1, // The label for the first bar (pvz., "United States")
-      backgroundColor: '#84cc16', // A lime green color
-      data: [props.data1], // The numeric data for the first bar
-      borderRadius: 4,
-    },
-    {
-      label: props.label2, // The label for the second bar (pvz., "Germany")
-      backgroundColor: '#22c55e', // A darker green color
-      data: [props.data2], // The numeric data for the second bar
-      borderRadius: 4,
-    }
-  ]
-}));
+const chartData = computed(() => {
+  if (props.chartType === 'line') {
+    return props.chartData;
+  }
 
-// Chart.js configuration options.
-// a customize look and feel of the chart.
+  return {
+    labels: [props.chartTitle],
+    datasets: [
+      {
+        label: props.label1,
+        backgroundColor: '#84cc16',
+        data: [props.data1],
+        borderRadius: 4,
+      },
+      {
+        label: props.label2,
+        backgroundColor: '#22c55e',
+        data: [props.data2],
+        borderRadius: 4,
+      }
+    ]
+  };
+});
+
+// Chart.js configuration options
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
@@ -87,8 +102,8 @@ const chartOptions = {
 </script>
 
 <template>
-  <!-- The chart render -->
   <div class="h-64">
-    <Bar :data="chartData" :options="chartOptions" />
+    <Bar v-if="props.chartType === 'bar'" :data="chartData" :options="chartOptions" />
+    <Line v-if="props.chartType === 'line'" :data="chartData" :options="chartOptions" />
   </div>
 </template>
