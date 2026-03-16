@@ -14,3 +14,8 @@
     <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
   </p>
 </div>
+
+## ✨ Overview
+
+WalletChirp provides a comprehensive snapshot of a nation's financial health using real-time data and AI-powered summaries. Built step-by-step with a powerful Python/Django backend and a reactive Vue.js frontend, it's designed for seamless economic comparisons.
+
