@@ -19,3 +19,8 @@
 
 WalletChirp provides a comprehensive snapshot of a nation's financial health using real-time data and AI-powered summaries. Built step-by-step with a powerful Python/Django backend and a reactive Vue.js frontend, it's designed for seamless economic comparisons.
 
+## 🚀 Features
+
+- **🌍 Dual Country Comparison:** Analyze two countries side-by-side in a clean, responsive layout.
+- **📊 Rich Data Points:** Up-to-date metrics from the World Bank API:
+
