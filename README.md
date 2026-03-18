@@ -23,4 +23,14 @@ WalletChirp provides a comprehensive snapshot of a nation's financial health usi
 
 - **🌍 Dual Country Comparison:** Analyze two countries side-by-side in a clean, responsive layout.
 - **📊 Rich Data Points:** Up-to-date metrics from the World Bank API:
+  - GDP & GDP per Capita
+  - GNI per Capita & PPP
+  - Population & Inflation Rate
+  - Central Government Debt (% of GDP)
+- **🤖 AI-Powered Summaries (Gemini API):**
+  - *Economic Chirp:* AI-generated summary of economic strengths and challenges.
+  - *Tax Chirp:* Concise breakdown of personal and corporate tax rates.
+- **📈 Data Visualization:**
+  - Bar Charts: Instantly compare key metrics.
+  - Historical Line Charts: Click a metric to see a 20-year trend analysis.
 
