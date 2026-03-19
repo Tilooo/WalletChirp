@@ -33,4 +33,8 @@ WalletChirp provides a comprehensive snapshot of a nation's financial health usi
 - **📈 Data Visualization:**
   - Bar Charts: Instantly compare key metrics.
   - Historical Line Charts: Click a metric to see a 20-year trend analysis.
-
+- **✨ Modern UI/UX:**
+  - Glassmorphism Design: Beautiful blurred-background cards.
+  - Loading Skeletons: Professional loading states for improved perceived performance.
+  - User-Friendly Search: Autocomplete search box with a full country list.
+  - Fully responsive, smooth hover effects, and accessible interactions.
