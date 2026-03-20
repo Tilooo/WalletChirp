@@ -38,3 +38,19 @@ WalletChirp provides a comprehensive snapshot of a nation's financial health usi
   - Loading Skeletons: Professional loading states for improved perceived performance.
   - User-Friendly Search: Autocomplete search box with a full country list.
   - Fully responsive, smooth hover effects, and accessible interactions.
+
+## 🛠️ Tech Stack
+
+### Backend
+- **Framework:** Django & Django REST Framework
+- **Language:** Python 3.10+
+- **AI Integration:** Google Generative AI
+- **External APIs:** World Bank API
+- **Environment Management:** `python-dotenv`
+
+### Frontend
+- **Framework:** Vue.js 3 (Composition API)
+- **Build Tool:** Vite
+- **Styling:** Tailwind CSS
+- **Data Visualization:** Chart.js & vue-chartjs
+- **HTTP Client:** Axios
