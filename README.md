@@ -54,3 +54,8 @@ WalletChirp provides a comprehensive snapshot of a nation's financial health usi
 - **Styling:** Tailwind CSS
 - **Data Visualization:** Chart.js & vue-chartjs
 - **HTTP Client:** Axios
+
+  ## 🙏 Acknowledgments
+- **[World Bank Open Data](https://data.worldbank.org/)** - For providing comprehensive, free economic data.
+- **[Google AI](https://aistudio.google.com/)** - For the powerful model driving intelligent insights.
+- **[Tailwind CSS](https://tailwindcss.com/) & [Vue.js](https://vuejs.org/)** - For making frontend development a breeze.
