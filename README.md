@@ -1,7 +1,8 @@
 # 💸 WalletChirp 
 
 <div align="center">
-  <img src="placeholder.png" alt="WalletChirp Banner" width="800"/>
+  <img width="1366" height="640" alt="Screenshot (8480)" src="https://github.com/user-attachments/assets/652a9d74-bcc2-43e6-915f-f84a6c5c1393" />
+
   <br/>
   <p>
     <b>A modern, full-stack web application designed to make exploring and comparing the economies of different countries simple, beautiful, and insightful.</b>
